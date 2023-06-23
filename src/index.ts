@@ -1,4 +1,3 @@
-
 const fileInput = document.getElementById("csvFileInput");
 const preview = document.getElementById("preview");
 // @ts-ignore
@@ -9,45 +8,35 @@ fileInput.addEventListener("change", (event) => {
 
     reader.onload = (event) => {
         // @ts-ignore
-        preview.textContent = event.target.result;
+        if (typeof event.target.result !== 'string') {
+            alert("Invalid CSV");
+            return;
+        }
+        // @ts-ignore
+        const rows = event.target.result.split("\n");
+
+        const spited_rows = rows.map(row => row.split(','));
+
+        let modified_rows = new Array<Record<string, Array<number>>>();
+
+        for (let i = 0; i < spited_rows.length; i++) {
+            const row = spited_rows[i];
+            if (row.length !== 3) {
+                alert("Invalid CSV");
+                return;
+            }
+            const [type, ...stringPoint] = row;
+            const point = stringPoint.map(cord => parseFloat(cord));
+            if (point.some(isNaN)) {
+                alert("Invalid point coordinate found in the CSV");
+                return;
+            }
+            modified_rows.push({[type]: point});
+
+        }
+        
+        console.log(modified_rows);
 
     }
 
 });
-
-// type Point = {
-//     x: number,
-//     y: number
-// }
-
-// type CSVRow = {
-//     type: string,
-//     point: Point
-// }
-
-// const readCSVRow = (file: File) => {
-//     return new Promise((resolve, reject) => {
-//         const reader = new FileReader();
-//         reader.onload = (event) => {
-//         const csvData = event.target?.result;
-//         if (typeof csvData !== 'string') {
-//             reject(new Error("Invalid CSV"));
-//             return;
-//         }
-
-//         const rows = csvData.split("\n").map(row => {
-//             const [type, ...point] = row.split(",");
-
-//             point.map(cord => parseFloat(cord));
-
-//             if (point.some(isNaN)) {
-//                 reject(new Error("Invalid point coordinate found in the CSV"));
-//             }
-//         });
-//         resolve(rows);
-//     }
-//     reader.onerror = () => reject(new Error("Error reading CSV"));
-//     reader.readAsText(file);
-//     });
-    
-// }
